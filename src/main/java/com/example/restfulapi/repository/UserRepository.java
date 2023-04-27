@@ -1,9 +1,10 @@
 package com.example.restfulapi.repository;
 
+import com.example.restfulapi.model.Account;
 import com.example.restfulapi.model.User;
+import com.example.restfulapi.model.UserAccount;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -21,5 +22,22 @@ public interface UserRepository {
     @Select("select * from users_tb where id = #{id}")
     User findUSerById(int id);
     int removeUser(int id);
+
+    @Results({
+            @Result(column = "id", property = "userId"),
+            @Result(column = "id", property = "accounts", many=@Many(select = "findAccountByUserId"))
+    })
+    @Select("select * from users_tb")
+    List<UserAccount> getAllUserAccount();
+
+    @Results({
+            @Result(column = "account_name", property = "accountName"),
+            @Result(column = "account_no", property = "accountNumber"),
+            @Result(column = "transfer_limit", property = "transferLimit"),
+            @Result(column = "account_type", property = "accountType", one = @One(select = "com.example.restfulapi.repository.AccountRepository.getAccountTypeById"))
+    })
+    @Select("select * from useraccount_tb inner join account_tb a on a.id = useraccount_tb.account_id\n" +
+            "where user_id = #{id}")
+    List<Account> findAccountByUserId(int id);
 
 }

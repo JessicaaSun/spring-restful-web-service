@@ -12,7 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class UserAccount {
-    private int id;
-    private User user;
+    private int userId;
+    private String username;
+    private String gender;
+    private String address;
     private List<Account> accounts;
 }
