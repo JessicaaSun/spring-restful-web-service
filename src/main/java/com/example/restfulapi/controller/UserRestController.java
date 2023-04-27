@@ -18,25 +18,70 @@ public class UserRestController {
         this.userService = userService;
     }
 
+    private boolean isUserExists(int id) {
+        User user = userService.findUserByID(id);
+        return user != null;
+    }
+    private Response<User> userNotFound(int id){
+        return Response.<User>notFound().setMessage("Cannot find user with id "+id).setSuccess(false).setStatus(Response.Status.NOT_FOUND);
+    }
+
     @GetMapping("/all-users")
     List<User> getAllUser(){
         return userService.allUsers();
     }
 
-    @GetMapping("/user/{id}")
-    public User getUserById(@PathVariable int id){
-        return userService.findUserByID(id);
+    @GetMapping("/{id}")
+    public Response<User> getUserById(@PathVariable int id){
+        try {
+            if(isUserExists((id))){
+                return Response.<User>ok().setPayload(userService.findUserByID(id)).setMessage("Successfully retrieved a user with id "+id);
+            } else {
+                return userNotFound(id);
+            }
+        } catch (Exception exception) {
+            return Response.<User>exception().setSuccess(false).setMessage("Failed to retrieve a user with id "+id);
+        }
     }
 
     @PostMapping("/new-user")
-    public String createUser(@RequestBody User user){
+    public Response<User> createUser(@RequestBody User user){
         try{
-            int affectedRow = userService.createNewUser(user);
-            if(affectedRow>0)
-                return "Create user successfully!";
-            else return "Cannot create new user!";
+            userService.createNewUser(user);
+            return  Response.<User>createSuccess().setPayload(user).setMessage("Successfully created a new user!");
         }catch (Exception exception){
-            return exception.getMessage();
+            return Response.<User>exception().setSuccess(false).setMessage("Failed to create new user!");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public Response<User> updateUser(@PathVariable int id, @RequestBody User user){
+        try{
+            if(isUserExists(id)){
+                user.setUserId(id);
+                userService.updateUser(user, id);
+                return Response.<User>updateSuccess().setPayload(user).setMessage("Successfully updated a user with id "+id);
+            } else {
+                return userNotFound(id);
+            }
+        } catch (Exception exception){
+            return Response.<User>exception().setSuccess(false).setMessage("Fail to update a user with id "+id);
+        }
+
+    }
+
+    @DeleteMapping("/{id}")
+    public Response<User> deleteUser(@PathVariable int id){
+        try {
+            if(isUserExists(id)){
+                userService.removeUser(id);
+                return Response.<User>deleteSuccess().setMessage("Successfully deleted a user with id "+id);
+            }
+            else {
+                return userNotFound(id);
+            }
+        } catch (Exception exception){
+            return Response.<User>exception().setMessage("Fail to delete a user with id "+ id).setSuccess(false);
         }
     }
 

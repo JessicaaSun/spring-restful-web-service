@@ -17,10 +17,11 @@ public interface UserRepository {
     List<User> findUserByName(String username);
     @Insert("insert into users_tb (username, gender, address) values (#{user.username}, #{user.gender}, #{user.address})")
     int createNewUser(@Param("user") User user);
-    int updateUser(User user);
     @Result(column = "id", property = "userId")
     @Select("select * from users_tb where id = #{id}")
     User findUSerById(int id);
+
+    @Delete("delete from users_tb where id = #{id}")
     int removeUser(int id);
 
     @Results({
@@ -39,5 +40,8 @@ public interface UserRepository {
     @Select("select * from useraccount_tb inner join account_tb a on a.id = useraccount_tb.account_id\n" +
             "where user_id = #{id}")
     List<Account> findAccountByUserId(int id);
+
+    @Update("update users_tb set username=#{user.username}, gender=#{user.gender}, address=#{user.address} where id = #{id} returning #{id}")
+    int updateUser(@Param("user") User user, int id);
 
 }

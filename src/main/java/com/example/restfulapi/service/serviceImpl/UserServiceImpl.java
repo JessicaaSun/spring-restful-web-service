@@ -37,13 +37,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateUser(User user) {
-        return 0;
+    public int updateUser(User user, int id) {
+        return userRepository.updateUser(user, id);
     }
 
     @Override
     public int removeUser(int id) {
-        return 0;
+        return userRepository.removeUser(id);
     }
 
     @Override
