@@ -27,8 +27,13 @@ public class UserRestController {
     }
 
     @GetMapping("/all-users")
-    List<User> getAllUser(){
-        return userService.allUsers();
+    public Response<List<User>> getAllUser(){
+        try{
+            List<User> users = userService.allUsers();
+            return Response.<List<User>>ok().setMessage("Successfully retrieved all users!").setPayload(users);
+        } catch (Exception exception) {
+            return Response.<List<User>>exception().setMessage("Fail to retrieve all users!").setSuccess(false);
+        }
     }
 
     @GetMapping("/{id}")
