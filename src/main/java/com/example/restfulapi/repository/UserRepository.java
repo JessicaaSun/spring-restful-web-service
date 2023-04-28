@@ -3,6 +3,7 @@ package com.example.restfulapi.repository;
 import com.example.restfulapi.model.Account;
 import com.example.restfulapi.model.User;
 import com.example.restfulapi.model.UserAccount;
+import com.example.restfulapi.model.request.UserRequest;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -15,8 +16,8 @@ public interface UserRepository {
     @Select("select * from users_tb")
     List<User> allUsers();
     List<User> findUserByName(String username);
-    @Insert("insert into users_tb (username, gender, address) values (#{user.username}, #{user.gender}, #{user.address})")
-    int createNewUser(@Param("user") User user);
+    @Select("insert into users_tb (username, gender, address) values (#{user.username}, #{user.gender}, #{user.address}) returning id")
+    int createNewUser(@Param("user") UserRequest user);
     @Result(column = "id", property = "userId")
     @Select("select * from users_tb where id = #{id}")
     User findUSerById(int id);

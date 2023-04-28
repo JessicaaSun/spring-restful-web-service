@@ -2,6 +2,7 @@ package com.example.restfulapi.controller;
 
 import com.example.restfulapi.model.User;
 import com.example.restfulapi.model.UserAccount;
+import com.example.restfulapi.model.request.UserRequest;
 import com.example.restfulapi.service.UserService;
 import com.example.restfulapi.utils.Response;
 import org.springframework.stereotype.Controller;
@@ -50,10 +51,17 @@ public class UserRestController {
     }
 
     @PostMapping("/new-user")
-    public Response<User> createUser(@RequestBody User user){
+    public Response<User> createUser(@RequestBody UserRequest user){
         try{
-            userService.createNewUser(user);
-            return  Response.<User>createSuccess().setPayload(user).setMessage("Successfully created a new user!");
+            // u can use mapstruct or modelmapper if data is too many
+            int userId = userService.createNewUser(user);
+            System.out.println("userId " + userId);
+            if(userId >0){
+                User response = new User().setUsername(user.getUsername()).setAddress(user.getAddress()).setUserId(userId).setGender(user.getGender());
+                return  Response.<User>createSuccess().setPayload(response).setMessage("Successfully created a new user!");
+            } else {
+                return  Response.<User>badRequest().setMessage("Fail to create a new user").setSuccess(false);
+            }
         }catch (Exception exception){
             return Response.<User>exception().setSuccess(false).setMessage("Failed to create new user!");
         }
