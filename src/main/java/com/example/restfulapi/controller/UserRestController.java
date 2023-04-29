@@ -5,6 +5,7 @@ import com.example.restfulapi.model.UserAccount;
 import com.example.restfulapi.model.request.UserRequest;
 import com.example.restfulapi.service.UserService;
 import com.example.restfulapi.utils.Response;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +52,7 @@ public class UserRestController {
     }
 
     @PostMapping("/new-user")
-    public Response<User> createUser(@RequestBody UserRequest user){
+    public Response<User> createUser(@Valid @RequestBody UserRequest user){
         try{
             // u can use mapstruct or modelmapper if data is too many
             int userId = userService.createNewUser(user);
@@ -63,7 +64,7 @@ public class UserRestController {
                 return  Response.<User>badRequest().setMessage("Fail to create a new user").setSuccess(false);
             }
         }catch (Exception exception){
-            return Response.<User>exception().setSuccess(false).setMessage("Failed to create new user!");
+            return Response.<User>badRequest().setSuccess(false).setMessage("Failed to create new user!");
         }
     }
 
@@ -86,6 +87,13 @@ public class UserRestController {
     @DeleteMapping("/{id}")
     public Response<User> deleteUser(@PathVariable int id){
         try {
+//             Shorter way to do this
+//            int affectedRow = userService.removeUser(id);
+//            if(affectedRow >0){
+//                return Response.<User>deleteSuccess().setMessage("Successfully deleted a user with id "+id);
+//            } else {
+//                return Response.<User>notFound().setSuccess(false).setMessage("User with id = "+id+" does not exist in our system!");
+//            }
             if(isUserExists(id)){
                 userService.removeUser(id);
                 return Response.<User>deleteSuccess().setMessage("Successfully deleted a user with id "+id);
