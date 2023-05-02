@@ -24,6 +24,7 @@ public interface AccountRepository {
     @Result(property = "accountName", column = "name")
     @Select("select * from accounttype_tb where id=#{account_type}")
     AccountType getAccountTypeById(int account_type);
+    String getProfile();
     int createAccount(Account account);
     int updateAccount(Account account,int id);
     Account findAccountByID(int id);
