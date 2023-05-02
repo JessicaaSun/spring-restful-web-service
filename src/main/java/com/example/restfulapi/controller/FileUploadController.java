@@ -25,7 +25,7 @@ public class FileUploadController {
     public ResponseEntity<FileResponse> fileResponseResponseEntity(@RequestParam("images") MultipartFile file){
         String filename = null;
         try{
-            filename = this.fileUploadService.uploadFile(path,file);
+            filename = "http://localhost:8080/images/"+this.fileUploadService.uploadFile(path,file);
         }catch(IOException e){
             return new ResponseEntity<>(new FileResponse(null,e.getMessage()), HttpStatus.BAD_REQUEST);
         }
