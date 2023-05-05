@@ -5,6 +5,8 @@ import com.example.restfulapi.model.UserAccount;
 import com.example.restfulapi.model.request.UserRequest;
 import com.example.restfulapi.repository.UserRepository;
 import com.example.restfulapi.service.UserService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +20,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> allUsers() {
-        return userRepository.allUsers();
+    public PageInfo<User> allUsers(int page, int size, String name) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<>(userRepository.allUsers(name));
     }
 
     @Override

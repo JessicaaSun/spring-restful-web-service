@@ -4,6 +4,7 @@ import com.example.restfulapi.model.Account;
 import com.example.restfulapi.model.User;
 import com.example.restfulapi.model.UserAccount;
 import com.example.restfulapi.model.request.UserRequest;
+import com.example.restfulapi.repository.provider.UserProvider;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -13,8 +14,10 @@ import java.util.List;
 @Repository
 public interface UserRepository {
     @Result(column = "id", property = "userId")
-    @Select("select * from users_tb")
-    List<User> allUsers();
+//    @Select("select * from users_tb")
+    // use provider instead
+    @SelectProvider(type = UserProvider.class, method = "getAllUsers")
+    List<User> allUsers(String filterName);
     List<User> findUserByName(String username);
     @Select("insert into users_tb (username, gender, address) values (#{user.username}, #{user.gender}, #{user.address}) returning id")
     int createNewUser(@Param("user") UserRequest user);

@@ -5,8 +5,9 @@ import com.example.restfulapi.model.UserAccount;
 import com.example.restfulapi.model.request.UserRequest;
 import com.example.restfulapi.service.UserService;
 import com.example.restfulapi.utils.Response;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import jakarta.validation.Valid;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,12 +30,12 @@ public class UserRestController {
     }
 
     @GetMapping("/all-users")
-    public Response<List<User>> getAllUser(){
+    public Response<PageInfo<User>> getAllUser(@RequestParam (defaultValue = "1") int page, @RequestParam (defaultValue = "5") int size, @RequestParam(defaultValue = "", required = false) String username){
         try{
-            List<User> users = userService.allUsers();
-            return Response.<List<User>>ok().setMessage("Successfully retrieved all users!").setPayload(users);
+            PageInfo<User> users = userService.allUsers(page, size, username);
+            return Response.<PageInfo<User>>ok().setMessage("Successfully retrieved all users!").setPayload(users);
         } catch (Exception exception) {
-            return Response.<List<User>>exception().setMessage("Fail to retrieve all users!").setSuccess(false);
+            return Response.<PageInfo<User>>exception().setMessage("Fail to retrieve all users!").setSuccess(false);
         }
     }
 
@@ -88,19 +89,19 @@ public class UserRestController {
     public Response<User> deleteUser(@PathVariable int id){
         try {
 //             Shorter way to do this
-//            int affectedRow = userService.removeUser(id);
-//            if(affectedRow >0){
-//                return Response.<User>deleteSuccess().setMessage("Successfully deleted a user with id "+id);
-//            } else {
-//                return Response.<User>notFound().setSuccess(false).setMessage("User with id = "+id+" does not exist in our system!");
-//            }
-            if(isUserExists(id)){
-                userService.removeUser(id);
+            int affectedRow = userService.removeUser(id);
+            if(affectedRow >0){
                 return Response.<User>deleteSuccess().setMessage("Successfully deleted a user with id "+id);
+            } else {
+                return Response.<User>notFound().setSuccess(false).setMessage("User with id = "+id+" does not exist in our system!");
             }
-            else {
-                return userNotFound(id);
-            }
+//            if(isUserExists(id)){
+//                userService.removeUser(id);
+//                return Response.<User>deleteSuccess().setMessage("Successfully deleted a user with id "+id);
+//            }
+//            else {
+//                return userNotFound(id);
+//            }
         } catch (Exception exception){
             return Response.<User>exception().setMessage("Fail to delete a user with id "+ id).setSuccess(false);
         }

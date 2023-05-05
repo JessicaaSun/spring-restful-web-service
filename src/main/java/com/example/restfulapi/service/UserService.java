@@ -3,11 +3,12 @@ package com.example.restfulapi.service;
 import com.example.restfulapi.model.User;
 import com.example.restfulapi.model.UserAccount;
 import com.example.restfulapi.model.request.UserRequest;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
 public interface UserService {
-    List<User> allUsers();
+    PageInfo<User> allUsers(int page, int size, String name);
     List<User> findUserByName();
     User findUserByID(int id);
     int createNewUser(UserRequest user);
