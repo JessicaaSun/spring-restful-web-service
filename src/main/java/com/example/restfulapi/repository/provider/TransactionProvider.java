@@ -29,6 +29,7 @@ public class TransactionProvider {
     public static String updateTransaction(Transaction transaction, int transactionId){
         return new SQL(){{
             UPDATE("transactions_tb");
+                SET("sender_account_id = #{transaction.senderId}");
                 SET("receiver_account_id = #{transaction.receiverId}");
                 SET("amount = #{transaction.amount}");
                 SET("transfer_at = #{transaction.transferAt}");
