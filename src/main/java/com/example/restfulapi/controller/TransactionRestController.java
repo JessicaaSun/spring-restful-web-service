@@ -1,11 +1,14 @@
 package com.example.restfulapi.controller;
 
 import com.example.restfulapi.model.Transaction;
+import com.example.restfulapi.model.TransactionV2;
 import com.example.restfulapi.service.TransactionService;
 import com.example.restfulapi.utils.Response;
 import com.github.pagehelper.PageInfo;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/transactions")
@@ -27,6 +30,11 @@ public class TransactionRestController {
         }
     }
 
+    @GetMapping("/all-transactions-v2")
+    public Response<List<TransactionV2>> getAllTransactionsV2(){
+        List<TransactionV2> transactions = transactionService.getAllTransactionsV2();
+        return Response.<List<TransactionV2>>ok().setPayload(transactions).setMessage("Successfully retrieved all transactions!");
+    }
     @PostMapping("/new-transaction")
     public Response<Transaction> createTransaction(@Valid @RequestBody Transaction transaction){
         try{

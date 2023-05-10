@@ -15,6 +15,17 @@ public class TransactionProvider {
         }}.toString();
     }
 
+    public static String getTransactionsV2(){
+
+        return new SQL(){{
+
+            SELECT("*");
+            FROM("transactions_tb");
+
+        }}.toString();
+    }
+
+
     public static String insertTransaction(Transaction transaction) {
         return new SQL() {{
             INSERT_INTO("transactions_tb");
