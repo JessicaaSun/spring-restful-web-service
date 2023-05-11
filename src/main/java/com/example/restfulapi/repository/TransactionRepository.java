@@ -25,7 +25,6 @@ public interface TransactionRepository {
     List<Transaction> allTransactions(int filterId);
 
     @SelectProvider(type = TransactionProvider.class, method = "getTransactionsV2")
-
     @Results({
             @Result(column = "sender_account_id", property ="sender",one = @One(select = "getUserTransactionByAccountID")),
             @Result(column = "receiver_account_id", property ="receiver" , one = @One(select="getUserTransactionByAccountID")),
