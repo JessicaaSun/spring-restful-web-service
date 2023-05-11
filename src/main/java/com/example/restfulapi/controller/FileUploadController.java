@@ -36,16 +36,27 @@ public class FileUploadController {
 //        return new ResponseEntity<>(new FileResponse(filename,"image uploaded successfully!!!"),HttpStatus.OK);
 //    }
     @PostMapping("/upload")
-    public Response<?> fileUpload(@RequestParam("file") MultipartFile file){
-        String filename = fileUploadService.uploadFile(file);
-        return Response.<Object>ok().setSuccess(true).setMessage("Successfully added");
+    public Response<FileResponse> fileUpload(@RequestParam("file") MultipartFile file){
+        try {
+            FileResponse response = uploadFile(file);
+            return Response.<FileResponse>ok().setSuccess(true).setMessage("Successfully uploaded a file!").setPayload(response);
+        } catch (Exception ex){
+            ex.printStackTrace();
+            return Response.<FileResponse>exception().setMessage(false).setMessage("Fail to upload file!");
+        }
     }
 
     // helper method
     @PostMapping("/multiple-file-upload")
-    public Response<?> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files){
-       List<String> filenames = Arrays.stream(files).map(file -> fileUploadService.uploadFile(file)).collect(Collectors.toList());
-       return Response.<Object>ok().setPayload(filenames);
+    public Response<List<FileResponse>> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files){
+        try {
+            List<FileResponse> filenames = Arrays.stream(files).map(file ->uploadFile(file)).toList();
+            return Response.<List<FileResponse>>ok().setPayload(filenames).setMessage("Successfully uploaded a file!");
+        } catch (Exception ex){
+            ex.printStackTrace();
+            return Response.<List<FileResponse>>exception().setMessage("Fail to upload multi file").setSuccess(false);
+        }
+
     }
 
     @DeleteMapping("/delete-file/{filename}")
