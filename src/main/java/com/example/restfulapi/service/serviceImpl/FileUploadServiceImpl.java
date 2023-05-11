@@ -4,16 +4,19 @@ import com.example.restfulapi.service.FileUploadService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FileUploadServiceImpl implements FileUploadService {
-    private final String serverLocation = "src/main/resources/images";
+    private final String serverLocation = "src/main/resources/images/";
     Path fileLocationStorage;
     FileUploadServiceImpl(){
         fileLocationStorage = Paths.get(serverLocation);
@@ -52,7 +55,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public String uploadFile(MultipartFile file){
-        //format fiename;
+        //format filename;
         String filename = file.getOriginalFilename();
         //check to see if file is empty
         String[] fileCompartments = filename.split("\\.");
@@ -64,20 +67,53 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         try {
             Files.copy(file.getInputStream(), resovledPath, StandardCopyOption.REPLACE_EXISTING);
+            return filename;
         } catch (Exception ex){
             return ex.getMessage();
         }
-
-        return null;
     }
 
     @Override
     public String deleteFileByName(String filename) {
-        return null;
+        Path imagesLocation = Paths.get(serverLocation);
+        List<File> allFiles = List.of(imagesLocation.toFile().listFiles());
+        //filter file that we're going to delete
+        File deletedFile = allFiles.stream().filter(
+                file -> file.getName().equals(filename)
+        ).findFirst().orElse(null);
+
+        try {
+            if(deletedFile != null){
+                Files.delete(deletedFile.toPath());
+                return "delete success";
+            } else {
+               return "could not delete";
+            }
+        } catch (Exception ex){
+            ex.printStackTrace();
+            return "Exception occurred! Fail to delete file";
+        }
+
     }
 
     @Override
     public String deleteAllFiles() {
-        return null;
+        Path imagesLocation = Paths.get(serverLocation);
+        File[] files = imagesLocation.toFile().listFiles();
+
+        try{
+            System.out.println(files);
+            if(files== null || files.length == 0){
+                return "There is no file to delete!";
+            }
+            for(File file: files){
+                Files.delete(file.toPath());
+            }
+            return "delete successfully";
+        } catch (Exception ex){
+            ex.printStackTrace();
+            return "Exception occurred, fail to delete files!";
+        }
+
     }
 }
