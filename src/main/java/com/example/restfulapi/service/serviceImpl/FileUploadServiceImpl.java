@@ -1,6 +1,8 @@
 package com.example.restfulapi.service.serviceImpl;
 
 import com.example.restfulapi.service.FileUploadService;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -115,5 +117,20 @@ public class FileUploadServiceImpl implements FileUploadService {
             return "Exception occurred, fail to delete files!";
         }
 
+    }
+
+    @Override
+    public Resource loadFileAsResource(String filename) throws Exception{
+        Path resourcePath = this.fileLocationStorage.resolve(filename).normalize();
+        try{
+            Resource resource = new UrlResource(resourcePath.toUri());
+            if(resource.exists()){
+                return resource;
+            } else {
+                throw new Exception("Resource doesn't exist!");
+            }
+        } catch (Exception ex) {
+            throw new Exception("Exception occurred!! Fail to download the image");
+        }
     }
 }
