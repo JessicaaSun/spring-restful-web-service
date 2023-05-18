@@ -16,14 +16,14 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/file")
+@RequestMapping("/api/v1/file")
 @RequiredArgsConstructor
 public class FileUploadController {
     @Autowired
