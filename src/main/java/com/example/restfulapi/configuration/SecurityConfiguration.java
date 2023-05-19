@@ -6,7 +6,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -18,19 +20,22 @@ public class SecurityConfiguration {
 
     // postgres, testing (H2 database, also inmemory database)
     // 1. user credentials
-    @Bean
-    public InMemoryUserDetailsManager userDetailsManager(){
-        UserDetails user1 = User.builder().username("jessica").password("12345").roles("USER").build();
-        UserDetails user2 = User.withUsername("jane").password("4321").roles("ADMIN").build();
-        UserDetails user3 = User.withUsername("jasper").password("jasper").roles("ADMIN").build();
-        return (new InMemoryUserDetailsManager(user1, user2, user3));
-    }
+//    @Bean
+//    public InMemoryUserDetailsManager userDetailsManager(){
+//        UserDetails user1 = User.builder().username("jessica").password("12345").roles("USER").build();
+//        UserDetails user2 = User.withUsername("jane").password("4321").roles("ADMIN").build();
+//        UserDetails user3 = User.withUsername("jasper").password("jasper").roles("ADMIN").build();
+//        return (new InMemoryUserDetailsManager(user1, user2, user3));
+//    }
 
     // 2. password encoder
     @Bean
-    @SuppressWarnings("deprecation")
-    public NoOpPasswordEncoder passwordEncoder(){
-        return  (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+//    @SuppressWarnings("deprecation")
+//    public NoOpPasswordEncoder passwordEncoder(){
+//        return  (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+//    }
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
     }
 
     // 3. security filter-chain
@@ -47,4 +52,8 @@ public class SecurityConfiguration {
 
         return httpSecurity.build();
     }
+
+    // 1. override method loadByUsername from userDetailService
+    // authenicationProvider (DaoAuthenicationProvider)
+    // 2. Determine the authentication provider by our own
 }

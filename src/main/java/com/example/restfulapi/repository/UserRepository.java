@@ -18,6 +18,13 @@ public interface UserRepository {
     // use provider instead
     @SelectProvider(type = UserProvider.class, method = "getAllUsers")
     List<User> allUsers(String filterName);
+
+    @Results(id = "mappingUser" , value = {
+            @Result(property = "password", column = "secret_key"),
+            @Result(column = "id", property = "userId")
+    })
+
+    @Select("select * from users_tb where username like #{username}")
     List<User> findUserByName(String username);
     @Select("insert into users_tb (username, gender, address) values (#{user.username}, #{user.gender}, #{user.address}) returning id")
     int createNewUser(@Param("user") UserRequest user);
