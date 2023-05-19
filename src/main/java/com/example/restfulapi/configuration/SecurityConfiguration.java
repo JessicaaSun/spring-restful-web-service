@@ -1,11 +1,19 @@
 package com.example.restfulapi.configuration;
 
+import com.example.restfulapi.service.serviceImpl.UserDetailServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +23,27 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+
+    private final UserDetailsService userDetailService;
+    public SecurityConfiguration(UserDetailsService userDetailService){
+        this.userDetailService = userDetailService;
+    }
+
+    // 1. Create bean of Authentication manager
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        // password encoder
+        // userDetailService
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userDetailService);
+        return daoAuthenticationProvider;
+    }
 
     //we have to create 3 types of bean
 
@@ -29,11 +58,12 @@ public class SecurityConfiguration {
 //    }
 
     // 2. password encoder
-    @Bean
+
 //    @SuppressWarnings("deprecation")
 //    public NoOpPasswordEncoder passwordEncoder(){
 //        return  (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
 //    }
+    @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
@@ -43,6 +73,9 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
         // write the code in order to configure the security
         httpSecurity.csrf().disable()
+//                .sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/v1/authentication/**", "/api/v1/file/**", "/api/v1/mail/**").permitAll()
                 .anyRequest()
@@ -53,7 +86,13 @@ public class SecurityConfiguration {
         return httpSecurity.build();
     }
 
+    // Allow user to login with the information stored in database
+
     // 1. override method loadByUsername from userDetailService
-    // authenicationProvider (DaoAuthenicationProvider)
+    // authenticationProvider (DaoAuthenticationProvider)
+
     // 2. Determine the authentication provider by our own
+    //      1. @Bean of AuthenticationManger
+    //      2. @Bean of AuthenticationProvider
+
 }

@@ -9,7 +9,8 @@ import java.util.List;
 
 public interface UserService {
     PageInfo<User> allUsers(int page, int size, String name);
-    List<User> findUserByName();
+
+    List<User> findUserByName(String username);
     User findUserByID(int id);
     int createNewUser(UserRequest user);
     int updateUser(User user, int id);
