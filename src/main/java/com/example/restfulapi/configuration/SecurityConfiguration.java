@@ -1,6 +1,12 @@
 package com.example.restfulapi.configuration;
 
 import com.example.restfulapi.service.serviceImpl.UserDetailServiceImpl;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,8 +23,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
 
 @Configuration
 @EnableWebSecurity
@@ -81,11 +96,12 @@ public class SecurityConfiguration {
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic();
+      //          .httpBasic()
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt());  // JWT
+
 
         return httpSecurity.build();
     }
-
     // Allow user to login with the information stored in database
 
     // 1. override method loadByUsername from userDetailService
@@ -94,5 +110,35 @@ public class SecurityConfiguration {
     // 2. Determine the authentication provider by our own
     //      1. @Bean of AuthenticationManger
     //      2. @Bean of AuthenticationProvider
+
+    //JWT
+
+    @Bean
+    public KeyPair keyPair(){
+        try {
+            var keyPairGenerator = KeyPairGenerator.getInstance("rsa"); // using rsa algorithms
+            keyPairGenerator.initialize(2048);
+            // common choice for the size.
+            return keyPairGenerator.generateKeyPair();
+        }catch (NoSuchAlgorithmException ex){
+            throw new RuntimeException();
+        }
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder(){
+        //create instance of jwk
+        JWK jwk = new
+                RSAKey.Builder((RSAPublicKey) keyPair().getPublic()).privateKey(keyPair().getPrivate()).build();
+
+        // provide that instamse to the jwksourse
+        JWKSource<SecurityContext> jwlSource = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwlSource);
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder(){
+        return  NimbusJwtDecoder.withPublicKey((RSAPublicKey) keyPair().getPublic()).build();
+    }
 
 }

@@ -4,6 +4,7 @@ import com.example.restfulapi.model.User;
 import com.example.restfulapi.model.request.LoginRequest;
 import com.example.restfulapi.model.response.LoginResponse;
 import com.example.restfulapi.service.UserService;
+import com.example.restfulapi.service.serviceImpl.TokenServiceImpl;
 import com.example.restfulapi.utils.Response;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,9 +17,11 @@ import java.util.Base64;
 @RequestMapping("/api/v1/authentication")
 public class AuthenticationRestController {
     private final UserService userService;
+    private final TokenServiceImpl tokenService;
     private final AuthenticationProvider authenticationProvider;
-    public AuthenticationRestController(UserService userService, AuthenticationProvider authenticationProvider){
+    public AuthenticationRestController(UserService userService, AuthenticationProvider authenticationProvider, TokenServiceImpl tokenService){
         this.userService = userService;
+        this.tokenService=tokenService;
         this.authenticationProvider = authenticationProvider;
     }
     @PostMapping("/register")
@@ -34,15 +37,23 @@ public class AuthenticationRestController {
         );
         authentication = authenticationProvider.authenticate(authentication);
         // raise exception when username or password is invalid
-        String tokenFormat = authentication.getName() + ":" + authentication.getCredentials();
-        String tokenFormatEncoded = Base64.getEncoder().encodeToString(tokenFormat.getBytes());
-        String token = "Basic " + tokenFormatEncoded;
-        LoginResponse response = new LoginResponse();
-        response.setToken(token);
+//        String tokenFormat = authentication.getName() + ":" + authentication.getCredentials();
+//        String tokenFormatEncoded = Base64.getEncoder().encodeToString(tokenFormat.getBytes());
+//        String token = "Basic " + tokenFormatEncoded;
+//        LoginResponse response = new LoginResponse();
+//        response.setToken(token);
+//
+//        User user = userService.findUserByName(loginRequest.getUsername()).stream().findFirst().orElse(null);
+//        response.setUser(user);
+//        return Response.<LoginResponse>ok().setPayload(response).setMessage("Successfully login, please use your token to authenticate!");
 
-        User user = userService.findUserByName(loginRequest.getUsername()).stream().findFirst().orElse(null);
-        response.setUser(user);
+        // JWT
+        LoginResponse response = new LoginResponse();
+        String token = tokenService.generateToken(authentication);
+        response.setAccessToken(token);
+        response.setTokenType("Bearer");
         return Response.<LoginResponse>ok().setPayload(response).setMessage("Successfully login, please use your token to authenticate!");
+
     }
 
     @PatchMapping("/reset-password")
